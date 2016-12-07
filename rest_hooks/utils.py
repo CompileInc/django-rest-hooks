@@ -72,6 +72,7 @@ def distill_model_event(instance, model, action, user_override=None):
 
     If that model isn't represented, we just quit silenty.
     """
+    from django.conf import settings
     from rest_hooks.models import HOOK_EVENTS
 
     event_name = None
@@ -86,4 +87,8 @@ def distill_model_event(instance, model, action, user_override=None):
                     user_override = False
 
     if event_name:
-        find_and_fire_hook(event_name, instance, user_override=user_override)
+        if getattr(settings, 'HOOK_EVENT_HANDLER', None):
+            event_handler = get_module(settings.HOOK_EVENT_HANDLER)
+            event_handler(event_name, instance, user_override=user_override)
+        else:
+            find_and_fire_hook(event_name, instance, user_override=user_override)

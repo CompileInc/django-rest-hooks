@@ -170,14 +170,24 @@ def raw_custom_event(sender, event_name,
     """
     Give a full payload
     """
-    hooks = Hook.objects.filter(user=user, event=event_name)
+    if getattr(settings, 'HOOK_RAW_EVENT_HANDLER', None):
+        event_handler = get_module(settings.HOOK_RAW_EVENT_HANDLER)
+        event_handler(sender=sender,
+                      event_name=event_name,
+                      payload=payload,
+                      user=user,
+                      send_hook_meta=send_hook_meta,
+                      instance=instance,
+                      **kwargs)
+    else:
+        hooks = Hook.objects.filter(user=user, event=event_name)
 
-    for hook in hooks:
-        new_payload = payload
-        if send_hook_meta:
-            new_payload = {
-                'hook': hook.dict(),
-                'data': payload
-            }
+        for hook in hooks:
+            new_payload = payload
+            if send_hook_meta:
+                new_payload = {
+                    'hook': hook.dict(),
+                    'data': payload
+                }
 
-        hook.deliver_hook(instance, payload_override=new_payload)
+            hook.deliver_hook(instance, payload_override=new_payload)
