@@ -118,8 +118,3 @@ target/
 
 #Test Coverage
 tests/reports/
-
-#Pydev
-.project
-.pydevproject
-
