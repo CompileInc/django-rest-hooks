@@ -89,6 +89,6 @@ def distill_model_event(instance, model, action, user_override=None):
     if event_name:
         if getattr(settings, 'HOOK_EVENT_HANDLER', None):
             event_handler = get_module(settings.HOOK_EVENT_HANDLER)
-            event_handler(event_name, instance, user_override=user_override)
+            event_handler(event_name, action, instance, user_override=user_override)
         else:
             find_and_fire_hook(event_name, instance, user_override=user_override)
